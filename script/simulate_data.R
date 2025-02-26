@@ -94,11 +94,5 @@ for (k in 1:(K+1)) {
   } else {
     w[failure.times>=k, k] <- w[failure.times>=k,k-1] * phat.numer / phat.denom
   }
-  ### model.fits[[k]] <- glm(
-  ###   as.factor(y[,k+1]==0) ~ a[,1:k], 
-  ###   family = binomial, 
-  ###   weights = w[, k], 
-  ###   subset = which(failure.times>=k)
-  ### )
 }
 

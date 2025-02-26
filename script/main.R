@@ -5,10 +5,18 @@ library(iterators)
 library(doParallel)
 
 setwd("/Users/victorvelascopardo/eave_ii_simulated_data/")
+
+demographics <- read.csv("data/multimorbidity.csv", stringsAsFactors = TRUE)
+demographics$SCSIMD5 <- as.factor(demographics$SCSIMD5)
+demographics$NumComorbidities <- as.factor(demographics$NumComorbidities)
+demographics <- demographics[!is.na(demographics$SCSIMD5), ]
+
+levels(demographics$AgeGroup) <- gsub("\\+", "more", gsub("-", "to", levels(demographics$AgeGroup)))
+
 K <- 2 # Number of visits minus one
 
 # Parameter determining the strength of confounding (five scenarios)
-rhos <- c(0, -0.25, -0.5, -0.75, -1)
+rhos <- c(-0.1, -0.3, -0.5, -0.7, -0.9)
 
 # Parameters for causal quantity of interest
 betas <- list()
@@ -69,3 +77,4 @@ for (l in 1:length(rhos)) {
   write_csv(as.data.frame(a), paste0("simulations/", l, "/treatment.csv"))
   write_csv(as.data.frame(y), paste0("simulations/", l, "/outcome.csv"))
 }
+

@@ -8,7 +8,7 @@ setwd("/Users/victorvelascopardo/eave_ii_simulated_data/")
 K <- 2 # Number of visits minus one
 
 # Parameter determining the strength of confounding (five scenarios)
-rhos <- c(0, -0.25, -0.5, -0.75, -1)
+rhos <- c(-0.1, -0.3, -0.5, -0.7, -0.9)
 
 source("script/aux_functions.R")
 # Parameters for causal quantity of interest
@@ -17,7 +17,7 @@ betas[[1]] <- c(-3.5, -0.5)
 betas[[2]] <- c(-3.5, -0.5, -0.5)
 betas[[3]] <- c(-3.5, 0, -0.5, -0.5)
 
-for (l in 1:5) {
+for (l in 1:length(rhos)) {
   model.outcome.unweighted <- list()
   rho <- rhos[l]
   

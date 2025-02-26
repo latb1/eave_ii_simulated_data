@@ -1,21 +1,5 @@
 set.seed(1)
 
-demographics <- read.csv("data/multimorbidity.csv", stringsAsFactors = TRUE)
-demographics$SCSIMD5 <- as.factor(demographics$SCSIMD5)
-demographics$NumComorbidities <- as.factor(demographics$NumComorbidities)
-demographics <- demographics[!is.na(demographics$SCSIMD5), ]
-
-levels(demographics$AgeGroup) <- gsub("\\+", "more", gsub("-", "to", levels(demographics$AgeGroup)))
-
-demographics_coded <- cbind(
-  encode_binary(demographics$Sex, name = "Sex"),
-  encode_ordinal(demographics$AgeGroup, name = "AgeGroup"),
-  encode_ordinal(demographics$SCSIMD5, name = "SCSIMD5"),
-  encode_ordinal(demographics$NumComorbidities, name = "NumComorbidities"),
-  demographics$n
-)
-colnames(demographics_coded)[ncol(demographics_coded)] <- "n"
-
 m <- 1e6 # Sample size for estimating the CDF
 
 fhat <- list()
