@@ -1,5 +1,3 @@
-
-# Now implement the algorithm of section 3.3
 # Initialise matrices to store variables 
 N <- 1e6
 a <- matrix(NA, nrow = N, ncol = K+1); colnames(a) <- paste0("A", 0:K)
@@ -7,7 +5,6 @@ y <- cbind(
   matrix(1,  nrow = N, ncol = 1),
   matrix(NA, nrow = N, ncol = K+1)
 ); colnames(y) <- paste0("Y", 0:(K+1))
-# y <- matrix(1, nrow = N, ncol = 1); colnames(y) <- c("Y0")
 
 # Step 1. Sample B ~ p(B). Set k = 0
 b <- demographics[sample(1:nrow(demographics), size = N, replace = TRUE, prob = demographics$n), -ncol(demographics)]
@@ -73,7 +70,7 @@ for (k in 0:K) {
   # Step 8. Set k = k + 1 and return to Step 2
 }
 
-failure.times <- rowSums(y)
+failure_times <- rowSums(y)
 # First compute weights
 w <- matrix(1, N, K+1)
 
@@ -83,16 +80,15 @@ for (k in 1:(K+1)) {
     fit.numer <- glm(a[, 1] ~ 1, family = binomial)
     fit.denom <- glm(a[, 1] ~ b_coded, family = binomial)
   } else {
-    fit.numer <- glm(a[, k] ~ a[,(1:(k-1))], family = binomial, subset = which(failure.times>=k))
-    fit.denom <- glm(a[, k] ~ a[,(1:(k-1))] + b_coded, family = binomial, subset = which(failure.times>=k))
+    fit.numer <- glm(a[, k] ~ a[,(1:(k-1))], family = binomial, subset = which(failure_times>=k))
+    fit.denom <- glm(a[, k] ~ a[,(1:(k-1))] + b_coded, family = binomial, subset = which(failure_times>=k))
   }
   
-  phat.denom <- a[failure.times>=k, k] * fitted(fit.denom) + (1-a[failure.times>=k, k]) * (1- fitted(fit.denom))
-  phat.numer <- a[failure.times>=k, k] * fitted(fit.numer) + (1-a[failure.times>=k, k]) * (1- fitted(fit.numer))
+  phat.denom <- a[failure_times>=k, k] * fitted(fit.denom) + (1-a[failure_times>=k, k]) * (1- fitted(fit.denom))
+  phat.numer <- a[failure_times>=k, k] * fitted(fit.numer) + (1-a[failure_times>=k, k]) * (1- fitted(fit.numer))
   if (k == 1) {
     w[, k] <- phat.numer / phat.denom
   } else {
-    w[failure.times>=k, k] <- w[failure.times>=k,k-1] * phat.numer / phat.denom
+    w[failure_times>=k, k] <- w[failure_times>=k,k-1] * phat.numer / phat.denom
   }
 }
-

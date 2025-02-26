@@ -6,6 +6,7 @@ library(doParallel)
 
 setwd("/Users/victorvelascopardo/eave_ii_simulated_data/")
 
+# Load demographics table
 demographics <- read.csv("data/multimorbidity.csv", stringsAsFactors = TRUE)
 demographics$SCSIMD5 <- as.factor(demographics$SCSIMD5)
 demographics$NumComorbidities <- as.factor(demographics$NumComorbidities)

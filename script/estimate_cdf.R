@@ -2,12 +2,13 @@ set.seed(1)
 
 m <- 1e6 # Sample size for estimating the CDF
 
-fhat <- list()
+fhat <- list() # List to store empirical CDFs
 
 for (tmt_allocation in a_k_values) {
   # Step 1. For j=1,...,m, simulate B_j ~ p(B_j). Set k = 0.
   b <- demographics[sample(1:nrow(demographics), size = m, replace = TRUE, prob = demographics$n), -ncol(demographics)]
   rownames(b) <- NULL
+  # Categorical and ordinal encoding of demographic covariates, B
   b_coded <- cbind(
     encode_binary(b$Sex, name = "Sex"),
     encode_ordinal(b$AgeGroup, name = "AgeGroup"),
@@ -19,9 +20,6 @@ for (tmt_allocation in a_k_values) {
     # (Skip) Step 2. Sample time-varying covariates
     # Step 3. Compute H_k, \hat{F}_H.
     h <- as.vector(b_coded %*% thetas)
-    #### if (tmt_allocation == "") {
-    ####   fhat[["BASE"]] <- ecdf(h)
-    #### } else 
     if (k == nchar(tmt_allocation)) {
       fhat[[tmt_allocation]] <- ecdf(h)
     }
@@ -51,7 +49,5 @@ for (tmt_allocation in a_k_values) {
     b_coded[which(failed), ] <- b_coded[random_replacements, ]
     
     # Step 11. Set k = k + 1 and return to step 2
-    
   }
 }
-

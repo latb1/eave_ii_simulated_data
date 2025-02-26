@@ -33,12 +33,12 @@ for (l in 1:length(rhos)) {
   a <- read_csv(paste0("simulations/", l, "/treatment.csv")) |> as.data.frame() |> as.matrix()
   y <- read_csv(paste0("simulations/", l, "/outcome.csv")) |> as.data.frame() |> as.matrix()
   
-  failure.times <- rowSums(y)
+  failure_times <- rowSums(y)
   for (k in 1:(K+1)) {
     model.outcome.unweighted[[k]] <- glm(
       as.factor(y[,k+1]==0) ~ a[,1:k], 
       family = binomial, 
-      subset = which(failure.times>=k)
+      subset = which(failure_times>=k)
     ) 
   }
   
@@ -50,22 +50,22 @@ for (l in 1:length(rhos)) {
       fit.numer <- glm(a[, 1] ~ 1, family = binomial)
       fit.denom <- glm(a[, 1] ~ b_coded, family = binomial)
     } else {
-      fit.numer <- glm(a[, k] ~ a[,(1:(k-1))], family = binomial, subset = which(failure.times>=k))
-      fit.denom <- glm(a[, k] ~ a[,(1:(k-1))] + b_coded, family = binomial, subset = which(failure.times>=k))
+      fit.numer <- glm(a[, k] ~ a[,(1:(k-1))], family = binomial, subset = which(failure_times>=k))
+      fit.denom <- glm(a[, k] ~ a[,(1:(k-1))] + b_coded, family = binomial, subset = which(failure_times>=k))
     }
     
-    phat.denom <- a[failure.times>=k, k] * fitted(fit.denom) + (1-a[failure.times>=k, k]) * (1- fitted(fit.denom))
-    phat.numer <- a[failure.times>=k, k] * fitted(fit.numer) + (1-a[failure.times>=k, k]) * (1- fitted(fit.numer))
+    phat.denom <- a[failure_times>=k, k] * fitted(fit.denom) + (1-a[failure_times>=k, k]) * (1- fitted(fit.denom))
+    phat.numer <- a[failure_times>=k, k] * fitted(fit.numer) + (1-a[failure_times>=k, k]) * (1- fitted(fit.numer))
     if (k == 1) {
       w[, k] <- phat.numer / phat.denom
     } else {
-      w[failure.times>=k, k] <- w[failure.times>=k,k-1] * phat.numer / phat.denom
+      w[failure_times>=k, k] <- w[failure_times>=k,k-1] * phat.numer / phat.denom
     }
     model.outcome.weighted[[k]] <- glm(
       as.factor(y[,k+1]==0) ~ a[,1:k], 
       family = binomial, 
       weights = w[, k], 
-      subset = which(failure.times>=k)
+      subset = which(failure_times>=k)
     )
   }
   
