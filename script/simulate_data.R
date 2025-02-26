@@ -1,10 +1,7 @@
-library(sandwich)
-set.seed(1)
-expit <- function(x) return(exp(x) / (1+exp(x)))
 
 # Now implement the algorithm of section 3.3
 # Initialise matrices to store variables 
-N <- 1e5
+N <- 1e6
 a <- matrix(NA, nrow = N, ncol = K+1); colnames(a) <- paste0("A", 0:K)
 y <- cbind(
   matrix(1,  nrow = N, ncol = 1),
@@ -97,12 +94,11 @@ for (k in 1:(K+1)) {
   } else {
     w[failure.times>=k, k] <- w[failure.times>=k,k-1] * phat.numer / phat.denom
   }
-  model.fits[[k]] <- glm(
-    as.factor(y[,k+1]==0) ~ a[,1:k], 
-    family = binomial, 
-    weights = w[, k], 
-    subset = which(failure.times>=k)
-  )
-  
+  ### model.fits[[k]] <- glm(
+  ###   as.factor(y[,k+1]==0) ~ a[,1:k], 
+  ###   family = binomial, 
+  ###   weights = w[, k], 
+  ###   subset = which(failure.times>=k)
+  ### )
 }
 

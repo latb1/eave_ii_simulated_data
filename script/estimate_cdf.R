@@ -1,46 +1,11 @@
-a_k_values <- c(
-  "", 
-  "0", "1", 
-  "00", "01", "10", "11", 
-  "000", "001", "010", "011", "100", "101", "110", "111" #,
-#  "0000", "0001", "0010", "0011", "0100", "0101", "0110", "0111", "1000", "1001", "1010", "1011", "1100", "1101", "1110", "1111"
-)
-
-library(tidyverse)
-library(parallel)
-library(foreach)
-library(iterators)
-library(doParallel)
 set.seed(1)
-expit <- function(x) return(exp(x) / (1+exp(x)))
-
-setwd("/Users/victorvelascopardo/eave_simulated_data/")
-# setwd("/home/victor/trial_emulation_project/seaman_paper/")
 
 demographics <- read.csv("data/multimorbidity.csv", stringsAsFactors = TRUE)
 demographics$SCSIMD5 <- as.factor(demographics$SCSIMD5)
 demographics$NumComorbidities <- as.factor(demographics$NumComorbidities)
-# demographics$p <- demographics$n/sum(demographics$n)
 demographics <- demographics[!is.na(demographics$SCSIMD5), ]
 
 levels(demographics$AgeGroup) <- gsub("\\+", "more", gsub("-", "to", levels(demographics$AgeGroup)))
-
-encode_binary <- function(x, name = "") {
-  factors <- levels(x)
-  binary_encoding <- ifelse(x == factors[2], 1, 0)
-  binary_encoding <- matrix(binary_encoding, ncol = 1)
-  colnames(binary_encoding) <- paste0(name, factors[2])
-  return(binary_encoding)
-}
-
-encode_ordinal <- function(x, name = "") {
-  factors <- levels(x)
-  L <- length(factors)
-  factors_matrix <- matrix(0, nrow = L, ncol = L-1)
-  factors_matrix[lower.tri(factors_matrix)] <- 1
-  colnames(factors_matrix) <- paste0(name, "GE", factors[2:L])
-  return(factors_matrix[as.integer(x), ])
-}
 
 demographics_coded <- cbind(
   encode_binary(demographics$Sex, name = "Sex"),
@@ -51,52 +16,7 @@ demographics_coded <- cbind(
 )
 colnames(demographics_coded)[ncol(demographics_coded)] <- "n"
 
-# browser()
-# Set up N (sample size), K (number of visits)
-m <- 1e5 # Sample size for estimating the CDF
-K <- 2    # Number of visits (minus one)
-
-# Parameters for causal quantity of interest
-betas <- list()
-betas[[1]] <- c(-2.5, -0.5)
-betas[[2]] <- c(-2.5, -0.5, -0.5)
-betas[[3]] <- c(-2.5, 0, -0.5, -0.5)
-
-# Parameters for allocation of treatment to individuals
-gammas <- list()
-gammas[[1]] <- c(
-  -1.5,
-  0.05,
-  rep(0.1, nlevels(demographics$AgeGroup)-1),
-  rep(0.05, nlevels(demographics$SCSIMD5)-1),
-  rep(0.1, nlevels(demographics$NumComorbidities)-1)
-)
-gammas[[2]] <- c(
-  -1.5,
-  0.05,
-  rep(0.1, nlevels(demographics$AgeGroup)-1),
-  rep(0.05, nlevels(demographics$SCSIMD5)-1),
-  rep(0.1, nlevels(demographics$NumComorbidities)-1),
-  -0.5
-)
-gammas[[3]] <- c(
-  -1.5,
-  0.05,
-  rep(0.1, nlevels(demographics$AgeGroup)-1),
-  rep(0.05, nlevels(demographics$SCSIMD5)-1),
-  rep(0.1, nlevels(demographics$NumComorbidities)-1),
-  0, -0.5
-)
-# gammas[[4]] <- c(gammas[[1]], c(0, -0.5, -0.5))
-
-# Parameters for confounding mechanism
-thetas <- c(
-  0.05,
-  rep(0.1, nlevels(demographics$AgeGroup)-1),
-  rep(0.05, nlevels(demographics$SCSIMD5)-1),
-  rep(0.1, nlevels(demographics$NumComorbidities)-1)
-)
-rho <- rep(-0.1, K+1)
+m <- 1e6 # Sample size for estimating the CDF
 
 fhat <- list()
 
@@ -115,9 +35,10 @@ for (tmt_allocation in a_k_values) {
     # (Skip) Step 2. Sample time-varying covariates
     # Step 3. Compute H_k, \hat{F}_H.
     h <- as.vector(b_coded %*% thetas)
-    if (tmt_allocation == "") {
-      fhat[["BASE"]] <- ecdf(h)
-    } else if (k == nchar(tmt_allocation)) {
+    #### if (tmt_allocation == "") {
+    ####   fhat[["BASE"]] <- ecdf(h)
+    #### } else 
+    if (k == nchar(tmt_allocation)) {
       fhat[[tmt_allocation]] <- ecdf(h)
     }
     
