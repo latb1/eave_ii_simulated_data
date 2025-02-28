@@ -20,7 +20,7 @@ levels(b$Sex) <- c("Female", "Male")
 levels(b$AgeGroup) <- gsub("years", "", levels(b$AgeGroup))
 levels(b$SCSIMD5) <- c("1 (Most deprived)", 2:4, "5 (Least deprived)")
 levels(b$NumComorbidities) <- c(0:3, "4+")
-tabledem <- tableby(rho ~ Sex + SCSIMD5 + NumComorbidities + AgeGroup, data = b)
+tabledem <- tableby(rho ~ Sex + SCSIMD5 + NumComorbidities + AgeGroup, data = b, total = FALSE, test = FALSE)
 labels(tabledem) <- c(
   Overall   = "Total", 
   Sex   = "Sex", 
