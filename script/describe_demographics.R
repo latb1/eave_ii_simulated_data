@@ -1,8 +1,8 @@
 library(arsenal)
 
-setwd("/Users/victorvelascopardo/eave_ii_simulated_data")
+setwd("C:/Users/the_o/Desktop/Dissertation/SynthesisationRepo/eave_ii_simulated_data")
 
-N <- 1e6
+N <- 1e3
 rhos <- c(-0.1, -0.3, -0.5, -0.7, -0.9)
 
 b <- rbind(

@@ -4,7 +4,14 @@ library(foreach)
 library(iterators)
 library(doParallel)
 
-setwd("/Users/victorvelascopardo/eave_ii_simulated_data/")
+# PARAMETERS
+# K: Number of visits minus one
+# rhos: Parameters for confounding strength (5 scenarios)
+# betas: Parameters for the causal effect of interest
+# gammas: Parameters for treatment allocation
+# thetas: Parameters for the confounding mechanism
+
+setwd("C:/Users/the_o/Desktop/Dissertation/SynthesisationRepo/eave_ii_simulated_data/")
 
 # Load demographics table
 demographics <- read.csv("data/multimorbidity.csv", stringsAsFactors = TRUE)
@@ -77,5 +84,11 @@ for (l in 1:length(rhos)) {
   write_csv(as.data.frame(b), paste0("simulations/", l, "/confounders.csv"))
   write_csv(as.data.frame(a), paste0("simulations/", l, "/treatment.csv"))
   write_csv(as.data.frame(y), paste0("simulations/", l, "/outcome.csv"))
+
+  # Combine confounders, treatments, and outcomes into a single data frame
+  combined_data <- cbind(as.data.frame(b), as.data.frame(a), as.data.frame(y))
+
+  # Write the combined data to a single CSV file
+  write_csv(combined_data, paste0("simulations/", l, "/combined_data.csv"))
 }
 

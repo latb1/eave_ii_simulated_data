@@ -1,6 +1,6 @@
 set.seed(1)
 
-m <- 1e6 # Sample size for estimating the CDF
+m <- 1e3 # Sample size for estimating the CDF
 
 fhat <- list() # List to store empirical CDFs
 
